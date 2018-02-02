@@ -1,11 +1,23 @@
-version: '2'
+version: '2.1'
 
 services:
-    bisq-api:
+    alice:
         build:
             context: .
-        image: bisq:api
-        container_name: bisq-api
+        image: bisq-api
         ports:
           - 8080:8080
+        volumes:
+          - m2:/root/.m2
+    bob:
+        build:
+            context: .
+        image: bisq-api
+        ports:
+          - 8081:8080
+        volumes:
+          - m2:/root/.m2
 
+volumes:
+  m2:
+    name: m2

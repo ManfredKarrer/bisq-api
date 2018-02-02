@@ -14,8 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openjfx \
     build-essential && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/mrosseel/bisq-api.git
-WORKDIR /bisq-api/
-RUN mvn clean install
+WORKDIR /bisq-api
+VOLUME /bisq-api
 
-CMD mvn exec:java -Dexec.mainClass="io.bisq.api.app.ApiMain"
+CMD mvn clean install -DskipTests && mvn exec:java -Dexec.mainClass="io.bisq.api.app.ApiMain"
+
+COPY . /bisq-api

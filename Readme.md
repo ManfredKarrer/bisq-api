@@ -88,3 +88,23 @@ Set the environment variable `BISQ_API_PORT` to your desired port.
 * produce jar with all dependencies for easier deployment
 * Dockerfile to get up-and-running without having java/maven/git/...
 * fix the Bisq dependency to the latest release, once it's released (post 0.5.3)
+
+## Integration tests
+
+Since maven dependencies are being fetched after container is started you can seed 'm2' volume used for caching local maven repo:
+
+    docker volume create m2
+    docker container create -v m2:/m2 --name m2helperContainer busybox
+    docker cp ~/.m2/repository m2helperContainer:/m2/
+    docker rm m2helperContainer
+    
+Start docker containers for BisqApi (one for Bob and one for Alice)
+
+    docker-compose up -d --build
+
+Look at containers' logs if API is started:
+
+    docker-compose logs -f bob
+    docker-compose logs -f alice
+    
+Run integration tests (currently only through IntelliJ Idea: SimpleIT)
