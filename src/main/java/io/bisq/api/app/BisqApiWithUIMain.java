@@ -21,6 +21,8 @@ import bisq.common.util.Utilities;
 import bisq.core.app.AppOptionKeys;
 import bisq.core.app.BisqEnvironment;
 import bisq.core.app.BisqExecutable;
+import bisq.desktop.app.BisqAppModule;
+import com.google.inject.Guice;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -73,7 +75,9 @@ public class BisqApiWithUIMain extends BisqExecutable {
 
     @Override
     protected void doExecute(OptionSet options) {
-        BisqApiWithUI.setEnvironment(getBisqEnvironment(options));
+        final BisqEnvironment environment = getBisqEnvironment(options);
+        BisqApiWithUI.setEnvironment(environment);
+        BisqApiWithUI.setInjector(Guice.createInjector(new BisqAppModule(environment)));;
         javafx.application.Application.launch(BisqApiWithUI.class);
     }
 }

@@ -17,13 +17,6 @@
 
 package io.bisq.api.app;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import io.bisq.api.service.BisqApiApplication;
 import bisq.common.CommonOptionKeys;
 import bisq.common.UserThread;
 import bisq.common.app.DevEnv;
@@ -31,8 +24,6 @@ import bisq.common.app.Log;
 import bisq.common.app.Version;
 import bisq.common.crypto.LimitedKeyStrengthException;
 import bisq.common.handlers.ResultHandler;
-import bisq.core.locale.CurrencyUtil;
-import bisq.core.locale.Res;
 import bisq.common.proto.persistable.PersistedDataHost;
 import bisq.common.storage.Storage;
 import bisq.common.util.Profiler;
@@ -45,9 +36,9 @@ import bisq.core.arbitration.DisputeManager;
 import bisq.core.btc.AddressEntryList;
 import bisq.core.btc.BaseCurrencyNetwork;
 import bisq.core.btc.wallet.*;
-//import bisq.core.dao.compensation.CompensationRequestManager;
-//import bisq.core.dao.vote.VotingManager;
 import bisq.core.filter.FilterManager;
+import bisq.core.locale.CurrencyUtil;
+import bisq.core.locale.Res;
 import bisq.core.offer.OpenOfferManager;
 import bisq.core.trade.TradeManager;
 import bisq.core.trade.closed.ClosedTradableManager;
@@ -57,7 +48,6 @@ import bisq.core.user.User;
 import bisq.desktop.Navigation;
 import bisq.desktop.SystemTray;
 import bisq.desktop.app.BisqApp;
-import bisq.desktop.app.BisqAppModule;
 import bisq.desktop.common.UITimer;
 import bisq.desktop.common.view.CachingViewLoader;
 import bisq.desktop.common.view.View;
@@ -69,6 +59,12 @@ import bisq.desktop.main.overlays.popups.Popup;
 import bisq.desktop.main.overlays.windows.*;
 import bisq.desktop.util.ImageUtil;
 import bisq.network.p2p.P2PService;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import io.bisq.api.service.BisqApiApplication;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
@@ -97,6 +93,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+//import bisq.core.dao.compensation.CompensationRequestManager;
+//import bisq.core.dao.vote.VotingManager;
+
 public class BisqApiWithUI extends Application {
     private static final Logger log = (Logger) LoggerFactory.getLogger(BisqApiWithUI.class);
 
@@ -105,8 +104,7 @@ public class BisqApiWithUI extends Application {
     private static BisqEnvironment bisqEnvironment;
     private static Stage primaryStage;
     private final List<String> corruptedDatabaseFiles = new ArrayList<>();
-    private BisqAppModule bisqAppModule;
-    private Injector injector;
+    private static Injector injector;
     private boolean popupOpened;
     private Scene scene;
     private MainView mainView;
@@ -114,6 +112,10 @@ public class BisqApiWithUI extends Application {
 
     public static void setEnvironment(BisqEnvironment bisqEnvironment) {
         BisqApiWithUI.bisqEnvironment = bisqEnvironment;
+    }
+
+    public static void setInjector(Injector injector) {
+        BisqApiWithUI.injector = injector;
     }
 
     @SuppressWarnings("PointlessBooleanExpression")
@@ -172,8 +174,6 @@ public class BisqApiWithUI extends Application {
 
         try {
             // Guice
-            bisqAppModule = new BisqAppModule(bisqEnvironment, primaryStage);
-            injector = Guice.createInjector(bisqAppModule);
             injector.getInstance(InjectorViewFactory.class).setInjector(injector);
 
             injector.getInstance(BisqApiApplication.class).run("server", "bisq-api.yml");
@@ -456,7 +456,6 @@ public class BisqApiWithUI extends Application {
                 injector.getInstance(OpenOfferManager.class).shutDown(() -> {
                     injector.getInstance(P2PService.class).shutDown(() -> {
                         injector.getInstance(WalletsSetup.class).shutDownComplete.addListener((ov, o, n) -> {
-                            bisqAppModule.close(injector);
                             log.debug("Graceful shutdown completed");
                             resultHandler.handleResult();
                         });
