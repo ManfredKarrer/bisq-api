@@ -1,18 +1,19 @@
-package io.bisq.api.app;
+package io.bisq.api;
 
-import bisq.core.app.BisqEnvironment;
 import joptsimple.OptionSet;
 
-public class ApiEnvironment extends BisqEnvironment {
+public class ApiEnvironment {
 
     private final String apiHost;
 
     private final Integer apiPort;
 
+    private boolean enabled;
+
     public ApiEnvironment(OptionSet options) {
-        super(options);
         apiHost = (String) options.valueOf("apiHost");
         apiPort = (Integer) options.valueOf("apiPort");
+        enabled = !options.has("api") || (boolean) options.valueOf("api");
     }
 
     public String getApiHost() {
@@ -22,5 +23,9 @@ public class ApiEnvironment extends BisqEnvironment {
     public Integer getApiPort() {
         return apiPort;
     }
-}
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+}
