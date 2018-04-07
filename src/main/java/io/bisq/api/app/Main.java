@@ -29,7 +29,11 @@ public class Main {
             e.printStackTrace(System.err);
             System.exit(1);
         }
-        Security.addProvider(new BouncyCastleProvider());
+        if (null == Security.getProvider(BouncyCastleProvider.PROVIDER_NAME))
+            Security.addProvider(new BouncyCastleProvider());
+        Utilities.printSysInfo();
+//        TODO BisqAppMain initiates bisqEnv then initiates app dir and then once again initiates bisqEnv
+//        TODO BisqAppMain main method also sets context classloader to current thread (some javafx quirks)
         new Main().run(args);
     }
 
@@ -74,6 +78,7 @@ public class Main {
     }
 
     private void start(Injector injector) {
+//        TODO probably here we should start extensions in separate threads
         loader.forEach(extension -> extension.start(injector));
     }
 }

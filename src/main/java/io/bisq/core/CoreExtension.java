@@ -1,4 +1,4 @@
-package io.bisq.gui;
+package io.bisq.core;
 
 import bisq.common.CommonOptionKeys;
 import bisq.core.app.AppOptionKeys;
@@ -19,10 +19,9 @@ import org.springframework.util.StringUtils;
 import static java.lang.String.format;
 import static java.lang.String.join;
 
-public class GuiExtension implements LoadableExtension {
+public class CoreExtension implements LoadableExtension {
     @Override
     public void decorateOptionParser(OptionParser parser) {
-//        TODO allowsUnrecognizedOptions should not be invoked
         //CommonOptionKeys
         parser.accepts(CommonOptionKeys.LOG_LEVEL_KEY,
                 description("Log level [OFF, ALL, ERROR, WARN, INFO, DEBUG, TRACE]", BisqEnvironment.LOG_LEVEL_DEFAULT))
@@ -160,23 +159,17 @@ public class GuiExtension implements LoadableExtension {
 
     @Override
     public AbstractModule configure(OptionSet options) {
-        final GuiEnvironment environment = new GuiEnvironment(options);
-        return new GuiModule(environment);
+        final CoreEnvironment environment = new CoreEnvironment(options);
+        return new CoreModule(environment);
     }
 
     @Override
     public void start(Injector injector) {
-        final GuiEnvironment environment = injector.getInstance(GuiEnvironment.class);
-        if (!environment.isEnabled()) {
-            System.out.printf("GuiExtension is disabled\n");
-            return;
-        }
         new Thread() {
             @Override
             public void run() {
-                Thread.currentThread().setContextClassLoader(GuiExtension.class.getClassLoader());
-                final Gui gui = injector.getInstance(Gui.class);
-                gui.run(injector);
+                final Core core = injector.getInstance(Core.class);
+                core.run(injector);
             }
         }.start();
     }

@@ -1,2 +1,3 @@
-io.bisq.gui.GuiExtension
+#io.bisq.gui.GuiExtension
 io.bisq.api.ApiExtension
+io.bisq.core.CoreExtension
