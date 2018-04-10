@@ -107,17 +107,17 @@
         <dependency>
             <groupId>network.bisq</groupId>
             <artifactId>bisq-core</artifactId>
-            <version>895c222f0d</version>
+            <version>for-bisq-api</version>
         </dependency>
         <dependency>
             <groupId>network.bisq</groupId>
             <artifactId>bisq-p2p</artifactId>
-            <version>44f0ef776e</version>
+            <version>for-bisq-api</version>
         </dependency>
         <dependency>
             <groupId>network.bisq</groupId>
             <artifactId>bisq-common</artifactId>
-            <version>838c1088f1</version>
+            <version>for-bisq-api</version>
         </dependency>
         <!-- enable this to test with locally built bisq-exchange
         <dependency>

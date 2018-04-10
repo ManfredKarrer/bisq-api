@@ -1,23 +1,24 @@
 package io.bisq.gui;
 
-import bisq.desktop.app.BisqAppModule;
-import com.google.inject.Singleton;
+import bisq.desktop.DesktopModule;
+import com.google.inject.AbstractModule;
 
-public class GuiModule extends BisqAppModule {
+public class GuiModule extends AbstractModule {
 
     private final GuiEnvironment environment;
 
-    public GuiModule(GuiEnvironment environment)
-    {
-        super(environment);
+    public GuiModule(GuiEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
-    protected void configure()
-    {
-        super.configure();
+    protected void configure() {
         bind(GuiEnvironment.class).toInstance(environment);
-        bind(Gui.class).in(Singleton.class);
+        // ordering is used for shut down sequence
+        install(desktopModule());
+    }
+
+    private DesktopModule desktopModule() {
+        return new DesktopModule(environment);
     }
 }

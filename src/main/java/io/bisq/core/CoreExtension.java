@@ -3,10 +3,13 @@ package io.bisq.core;
 import bisq.common.CommonOptionKeys;
 import bisq.core.app.AppOptionKeys;
 import bisq.core.app.BisqEnvironment;
+import bisq.core.app.BisqExecutable;
 import bisq.core.btc.BtcOptionKeys;
 import bisq.core.btc.RegTestHost;
 import bisq.core.dao.DaoOptionKeys;
+import bisq.core.setup.CoreSetup;
 import bisq.core.util.joptsimple.EnumValueConverter;
+import bisq.desktop.app.DesktopAppSetup;
 import bisq.network.NetworkOptionKeys;
 import bisq.network.p2p.P2PService;
 import com.google.inject.AbstractModule;
@@ -15,6 +18,9 @@ import io.bisq.spi.LoadableExtension;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.springframework.util.StringUtils;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
@@ -80,7 +86,7 @@ public class CoreExtension implements LoadableExtension {
                         "(This is for developers only!)", false))
                 .withRequiredArg()
                 .ofType(boolean.class);
-        parser.accepts(AppOptionKeys.USE_DEV_MODE,
+        parser.accepts(CommonOptionKeys.USE_DEV_MODE,
                 description("Enables dev mode which is used for convenience for developer testing", false))
                 .withRequiredArg()
                 .ofType(boolean.class);
@@ -160,18 +166,31 @@ public class CoreExtension implements LoadableExtension {
     @Override
     public AbstractModule configure(OptionSet options) {
         final CoreEnvironment environment = new CoreEnvironment(options);
-        return new CoreModule(environment);
+//        TODO depending on response from cbeams this line should either stay here or go to setup method
+        BisqExecutable.initAppDir(environment.getProperty(AppOptionKeys.APP_DATA_DIR_KEY));
+        return new CoreModule(new CoreEnvironment(options));
+    }
+
+    public CompletableFuture<Void> setup(Injector injector) {
+        CoreSetup.setup(injector.getInstance(BisqEnvironment.class));
+        final DesktopAppSetup desktopAppSetup = injector.getInstance(DesktopAppSetup.class);
+        try {
+            desktopAppSetup.initPersistedDataHosts().get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> preStart(Injector injector) {
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public void start(Injector injector) {
-        new Thread() {
-            @Override
-            public void run() {
-                final Core core = injector.getInstance(Core.class);
-                core.run(injector);
-            }
-        }.start();
+        new Thread(() -> injector.getInstance(DesktopAppSetup.class).initBasicServices()).start();
     }
 
     private static String description(String descText, Object defaultValue) {

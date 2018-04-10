@@ -7,6 +7,8 @@ import io.bisq.spi.LoadableExtension;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
+import java.util.concurrent.CompletableFuture;
+
 public class ApiExtension implements LoadableExtension {
     @Override
     public void decorateOptionParser(OptionParser parser) {
@@ -17,6 +19,16 @@ public class ApiExtension implements LoadableExtension {
     public AbstractModule configure(OptionSet options) {
         final ApiEnvironment environment = new ApiEnvironment(options);
         return new ApiModule(environment);
+    }
+
+    @Override
+    public CompletableFuture<Void> preStart(Injector injector) {
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> setup(Injector injector) {
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override

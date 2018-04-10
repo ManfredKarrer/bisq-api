@@ -7,14 +7,19 @@ import bisq.core.btc.BtcOptionKeys;
 import bisq.core.btc.RegTestHost;
 import bisq.core.dao.DaoOptionKeys;
 import bisq.core.util.joptsimple.EnumValueConverter;
+import bisq.desktop.app.BisqApp;
 import bisq.network.NetworkOptionKeys;
 import bisq.network.p2p.P2PService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
+import io.bisq.api.app.Main;
 import io.bisq.spi.LoadableExtension;
+import javafx.application.Application;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.springframework.util.StringUtils;
+
+import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
@@ -81,7 +86,7 @@ public class GuiExtension implements LoadableExtension {
                         "(This is for developers only!)", false))
                 .withRequiredArg()
                 .ofType(boolean.class);
-        parser.accepts(AppOptionKeys.USE_DEV_MODE,
+        parser.accepts(CommonOptionKeys.USE_DEV_MODE,
                 description("Enables dev mode which is used for convenience for developer testing", false))
                 .withRequiredArg()
                 .ofType(boolean.class);
@@ -165,20 +170,39 @@ public class GuiExtension implements LoadableExtension {
     }
 
     @Override
-    public void start(Injector injector) {
+    public CompletableFuture<Void> setup(Injector injector) {
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> preStart(Injector injector) {
         final GuiEnvironment environment = injector.getInstance(GuiEnvironment.class);
         if (!environment.isEnabled()) {
             System.out.printf("GuiExtension is disabled\n");
-            return;
+            return CompletableFuture.completedFuture(null);
         }
+        final CompletableFuture<Void> future = new CompletableFuture<>();
         new Thread() {
             @Override
             public void run() {
-                Thread.currentThread().setContextClassLoader(GuiExtension.class.getClassLoader());
-                final Gui gui = injector.getInstance(Gui.class);
-                gui.run(injector);
+                //                TODO this must be tested if it's required
+                Thread.currentThread().setContextClassLoader(Main.class.getClassLoader());
+
+                final GuiEnvironment environment = injector.getInstance(GuiEnvironment.class);
+                BisqApp.setEnvironment(environment);
+                BisqApp.setInjector(injector);
+                BisqApp.setOnReadyToStart(() -> future.complete(null));
+//                REFACTOR main should expose some interface for shutting down and closing aggregated module
+//                                BisqApp.setOnShutdownHook(() -> bisqAppModule.close(injector));
+                Application.launch(BisqApp.class);
             }
         }.start();
+        return future;
+    }
+
+    @Override
+    public void start(Injector injector) {
+
     }
 
     private static String description(String descText, Object defaultValue) {
