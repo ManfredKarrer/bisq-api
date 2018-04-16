@@ -1,7 +1,9 @@
 package io.bisq.gui;
 
 import bisq.desktop.DesktopModule;
+import bisq.desktop.common.view.CachingViewLoader;
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 
 public class GuiModule extends AbstractModule {
 
@@ -14,6 +16,7 @@ public class GuiModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(GuiEnvironment.class).toInstance(environment);
+        bind(CachingViewLoader.class).in(Singleton.class);
         // ordering is used for shut down sequence
         install(desktopModule());
     }

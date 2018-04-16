@@ -190,7 +190,16 @@ public class CoreExtension implements LoadableExtension {
 
     @Override
     public void start(Injector injector) {
-        new Thread(() -> injector.getInstance(DesktopAppSetup.class).initBasicServices()).start();
+        final Thread thread = new Thread(() -> {
+            injector.getInstance(DesktopAppSetup.class).initBasicServices();
+            while (true) {
+                try {
+                    Thread.sleep(Integer.MAX_VALUE);
+                } catch (InterruptedException e) {
+                }
+            }
+        });
+        thread.start();
     }
 
     private static String description(String descText, Object defaultValue) {

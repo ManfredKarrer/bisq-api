@@ -24,7 +24,6 @@ import bisq.core.user.Preferences;
 import bisq.core.user.User;
 import bisq.desktop.app.BisqAppModule;
 import bisq.desktop.app.DesktopAppSetup;
-import bisq.desktop.common.view.CachingViewLoader;
 import bisq.desktop.main.overlays.notifications.NotificationCenter;
 import bisq.network.crypto.EncryptionServiceModule;
 import bisq.network.p2p.P2PModule;
@@ -47,8 +46,8 @@ public class CoreModule extends BisqAppModule {
     protected void configure() {
         bind(BisqEnvironment.class).toInstance((BisqEnvironment) environment);
 
+//        TODO: DesktopAppSetup should be moved from desktop to core and should be renamed
         bind(DesktopAppSetup.class).in(Singleton.class);
-        bind(CachingViewLoader.class).in(Singleton.class);
         bind(KeyStorage.class).in(Singleton.class);
         bind(KeyRing.class).in(Singleton.class);
         bind(User.class).in(Singleton.class);
