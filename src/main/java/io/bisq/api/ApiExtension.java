@@ -1,9 +1,9 @@
 package io.bisq.api;
 
+import bisq.spi.LoadableExtension;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import io.bisq.api.service.BisqApiApplication;
-import io.bisq.spi.LoadableExtension;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
