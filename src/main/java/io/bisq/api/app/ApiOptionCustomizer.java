@@ -5,6 +5,10 @@ import joptsimple.OptionParser;
 public class ApiOptionCustomizer {
 
     public static void customizeOptionParsing(OptionParser parser) {
+        parser.accepts(ApiOptionKeys.OPTION_API_ENABLED, "API enabled (default: false")
+                .withRequiredArg()
+                .ofType(boolean.class)
+                .defaultsTo(false);
         parser.accepts(ApiOptionKeys.OPTION_API_PORT, "API port (default: value of env variable BISQ_API_PORT or 8080")
                 .withRequiredArg()
                 .ofType(int.class);

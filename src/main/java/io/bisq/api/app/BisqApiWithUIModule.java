@@ -18,15 +18,14 @@
 package io.bisq.api.app;
 
 import bisq.desktop.app.BisqAppModule;
-import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 
 @Slf4j
 public class BisqApiWithUIModule extends BisqAppModule {
 
-    public BisqApiWithUIModule(Environment environment, Stage primaryStage) {
-        super(environment, primaryStage);
+    public BisqApiWithUIModule(Environment environment) {
+        super(environment);
     }
 
     @Override

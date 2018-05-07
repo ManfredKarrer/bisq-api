@@ -17,58 +17,23 @@
 
 package io.bisq.api.app;
 
-import bisq.common.util.Utilities;
-import bisq.core.app.AppOptionKeys;
-import bisq.core.app.BisqEnvironment;
+import bisq.common.app.AppModule;
 import bisq.core.app.BisqExecutable;
-import joptsimple.OptionException;
+import bisq.desktop.app.BisqAppMain;
+import io.bisq.api.service.BisqApiApplication;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
-import java.util.Locale;
-
-import static bisq.core.app.BisqEnvironment.DEFAULT_APP_NAME;
-import static bisq.core.app.BisqEnvironment.DEFAULT_USER_DATA_DIR;
-
-public class BisqApiWithUIMain extends BisqExecutable {
-
-    static {
-        // Need to set default locale initially otherwise we get problems at non-english OS
-        Locale.setDefault(new Locale("en", Locale.getDefault().getCountry()));
-
-        Utilities.removeCryptographyRestrictions();
-    }
+public class BisqApiWithUIMain extends BisqAppMain {
 
     public static void main(String[] args) throws Exception {
-        // We don't want to do the full argument parsing here as that might easily change in update versions
-        // So we only handle the absolute minimum which is APP_NAME, APP_DATA_DIR_KEY and USER_DATA_DIR
-        OptionParser parser = new OptionParser();
-        parser.allowsUnrecognizedOptions();
-        parser.accepts(AppOptionKeys.USER_DATA_DIR_KEY, description("User data directory", DEFAULT_USER_DATA_DIR))
-                .withRequiredArg();
-        parser.accepts(AppOptionKeys.APP_NAME_KEY, description("Application name", DEFAULT_APP_NAME))
-                .withRequiredArg();
+        if (BisqExecutable.setupInitialOptionParser(args)) {
+            // For some reason the JavaFX launch process results in us losing the thread context class loader: reset it.
+            // In order to work around a bug in JavaFX 8u25 and below, you must include the following code as the first line of your realMain method:
+            Thread.currentThread().setContextClassLoader(BisqApiWithUIMain.class.getClassLoader());
 
-        OptionSet options;
-        try {
-            options = parser.parse(args);
-        } catch (OptionException ex) {
-            System.out.println("error: " + ex.getMessage());
-            System.out.println();
-            parser.printHelpOn(System.out);
-            System.exit(EXIT_FAILURE);
-            return;
+            new BisqApiWithUIMain().execute(args);
         }
-        BisqEnvironment bisqEnvironment = getBisqEnvironment(options);
-
-        // need to call that before bisqAppMain().execute(args)
-        initAppDir(bisqEnvironment.getProperty(AppOptionKeys.APP_DATA_DIR_KEY));
-
-        // For some reason the JavaFX launch process results in us losing the thread context class loader: reset it.
-        // In order to work around a bug in JavaFX 8u25 and below, you must include the following code as the first line of your realMain method:
-        Thread.currentThread().setContextClassLoader(BisqApiWithUIMain.class.getClassLoader());
-
-        new BisqApiWithUIMain().execute(args);
     }
 
     @Override
@@ -78,8 +43,19 @@ public class BisqApiWithUIMain extends BisqExecutable {
     }
 
     @Override
-    protected void doExecute(OptionSet options) {
-        BisqApiWithUI.setEnvironment(new ApiEnvironment(options));
-        javafx.application.Application.launch(BisqApiWithUI.class);
+    protected void setupEnvironment(OptionSet options) {
+        bisqEnvironment = new ApiEnvironment(options);
+    }
+
+    @Override
+    protected AppModule getModule() {
+        return new BisqApiWithUIModule(bisqEnvironment);
+    }
+
+    @Override
+    protected void startApplication() {
+        super.startApplication();
+        if (((ApiEnvironment) bisqEnvironment).isApiEnabled())
+            injector.getInstance(BisqApiApplication.class).run();
     }
 }

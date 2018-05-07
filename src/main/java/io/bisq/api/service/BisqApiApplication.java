@@ -124,6 +124,14 @@ public class BisqApiApplication extends Application<ApiConfiguration> {
         );
     }
 
+    public void run() {
+        try {
+            run("server", "bisq-api.yml");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void run(ApiConfiguration configuration, Environment environment) {
         BisqProxy bisqProxy = new BisqProxy(injector, accountAgeWitnessService, arbitratorManager, walletService, tradeManager, openOfferManager,

@@ -101,31 +101,8 @@
         <dependency>
             <groupId>network.bisq</groupId>
             <artifactId>bisq-desktop</artifactId>
-            <version>e9e656f85b</version>
+            <version>-SNAPSHOT</version>
         </dependency>
-        <!--TODO once bisq-desktop is released and depends on non-snapshots we can get rid of following bisq-network dependencies-->
-        <dependency>
-            <groupId>network.bisq</groupId>
-            <artifactId>bisq-core</artifactId>
-            <version>834be82e2c</version>
-        </dependency>
-        <dependency>
-            <groupId>network.bisq</groupId>
-            <artifactId>bisq-p2p</artifactId>
-            <version>44f0ef776e3</version>
-        </dependency>
-        <dependency>
-            <groupId>network.bisq</groupId>
-            <artifactId>bisq-common</artifactId>
-            <version>707c3e836b</version>
-        </dependency>
-        <!-- enable this to test with locally built bisq-exchange
-        <dependency>
-            <groupId>io.bisq</groupId>
-            <artifactId>gui</artifactId>
-            <version>${bisq.version}</version>
-        </dependency>
-        -->
         <dependency>
             <!--force proper guava version since one of arquillian dependencies forces 18.0-->
             <groupId>com.google.guava</groupId>
@@ -226,6 +203,7 @@
             <groupId>org.arquillian.cube</groupId>
             <artifactId>arquillian-cube-docker</artifactId>
             <version>${version.arquillian_cube}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
