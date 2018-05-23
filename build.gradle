@@ -1,0 +1,97 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'network.bisq'
+version = '-SNAPSHOT'
+
+description = "API for Bisq - The decentralized exchange network"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    maven { url "https://repo.maven.apache.org/maven2" }
+    maven { url "https://jitpack.io" }
+    maven { url "https://dl.bintray.com/jerady/maven" }
+    maven { url 'https://raw.githubusercontent.com/JesusMcCloud/tor-binary/master/release/' }
+}
+dependencies {
+    compile group: 'network.bisq', name: 'bisq-desktop', version: 'e9e656f85b'
+    compile group: 'network.bisq', name: 'bisq-core', version: '834be82e2c'
+    compile group: 'network.bisq', name: 'bisq-p2p', version: '44f0ef776e3'
+    compile group: 'network.bisq', name: 'bisq-common', version: '707c3e836b'
+    compile group: 'com.google.guava', name: 'guava', version: '20.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.1'
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.22'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.1.10'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.10'
+    compile group: 'org.arquillian.cube', name: 'arquillian-cube-docker', version: '1.15.3'
+    compile(group: 'io.dropwizard', name: 'dropwizard-core', version: '1.2.2') {
+        exclude(module: 'guava')
+        exclude(module: 'logback-core')
+        exclude(module: 'logback-classic')
+        exclude(module: 'slf4j-api')
+        exclude(module: 'commons-lang3')
+        exclude(module: 'joda-time')
+    }
+    compile group: 'io.dropwizard', name: 'dropwizard-forms', version: '1.2.2'
+    compile(group: 'io.dropwizard', name: 'dropwizard-jackson', version: '1.2.2') {
+        exclude(module: 'guava')
+        exclude(module: 'logback-core')
+        exclude(module: 'logback-classic')
+        exclude(module: 'slf4j-api')
+    }
+    compile(group: 'io.dropwizard', name: 'dropwizard-jersey', version: '1.2.2') {
+        exclude(module: 'guava')
+        exclude(module: 'logback-core')
+        exclude(module: 'logback-classic')
+        exclude(module: 'slf4j-api')
+        exclude(module: 'commons-lang3')
+        exclude(module: 'joda-time')
+        exclude(module: 'hibernate-validator')
+    }
+    compile(group: 'io.dropwizard', name: 'dropwizard-util', version: '1.2.2') {
+        exclude(module: 'guava')
+        exclude(module: 'logback-core')
+        exclude(module: 'logback-classic')
+        exclude(module: 'slf4j-api')
+        exclude(module: 'commons-lang3')
+        exclude(module: 'joda-time')
+    }
+    compile(group: 'com.smoketurner', name: 'dropwizard-swagger', version: '1.2.2-2') {
+        exclude(module: 'jackson-databind')
+        exclude(module: 'dropwizard-core')
+        exclude(module: 'dropwizard-servlets')
+        exclude(module: 'javassist')
+        exclude(module: 'jackson-dataformat-yaml')
+        exclude(module: 'commons-lang3')
+    }
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.7.5'
+    testCompile group: 'org.jmockit', name: 'jmockit', version: '1.30'
+    testCompile group: 'com.github.javafaker', name: 'javafaker', version: '0.14'
+    testCompile group: 'org.arquillian.universe', name: 'arquillian-junit', version: '1.2.0.1'
+    testCompile group: 'org.arquillian.universe', name: 'arquillian-cube-docker', version: '1.2.0.1'
+    testCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.2'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
+}
+
+test {
+    testLogging {
+        showStandardStreams = true
+        showStackTraces = true
+    }
+}
+
+task runApp(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'network.bisq.api.app.ApiMain'
+}
