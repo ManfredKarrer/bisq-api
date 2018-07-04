@@ -1,13 +1,12 @@
 package network.bisq.api.service;
 
-import bisq.core.btc.wallet.BtcWalletService;
-import bisq.core.user.Preferences;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import network.bisq.api.BisqProxy;
-import network.bisq.api.app.ApiEnvironment;
-import network.bisq.api.health.CurrencyListHealthCheck;
-import network.bisq.api.service.v1.ApiV1;
+
+import java.util.EnumSet;
+
+import bisq.core.btc.wallet.BtcWalletService;
+import bisq.core.user.Preferences;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
@@ -19,14 +18,16 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+import network.bisq.api.BisqProxy;
+import network.bisq.api.app.ApiEnvironment;
+import network.bisq.api.health.CurrencyListHealthCheck;
+import network.bisq.api.service.v1.ApiV1;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-import java.util.EnumSet;
-
-public class BisqApiApplication extends Application<ApiConfiguration> {
+public class BisqHttpApiServer extends Application<ApiConfiguration> {
 
     @Inject
     Injector injector;
@@ -46,6 +47,10 @@ public class BisqApiApplication extends Application<ApiConfiguration> {
 
     public void setShutdown(Runnable shutdown) {
         this.shutdown = shutdown;
+    }
+
+    public void start() throws Exception {
+        run("server", "bisq-api.yml");
     }
 
     @Override

@@ -14,7 +14,7 @@ import bisq.core.trade.TradeManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import network.bisq.api.service.BisqApiApplication;
+import network.bisq.api.service.BisqHttpApiServer;
 
 @Slf4j
 public class Api implements UncaughtExceptionHandler {
@@ -54,10 +54,10 @@ public class Api implements UncaughtExceptionHandler {
 
     private void onSetupComplete() {
         log.info("onSetupComplete");
-        final BisqApiApplication bisqApiApplication = injector.getInstance(BisqApiApplication.class);
-        bisqApiApplication.setShutdown(this::stop);
+        final BisqHttpApiServer bisqHttpApiServer = injector.getInstance(BisqHttpApiServer.class);
+        bisqHttpApiServer.setShutdown(this::stop);
         try {
-            bisqApiApplication.run("server", "bisq-api.yml");
+            bisqHttpApiServer.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
